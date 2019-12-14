@@ -51,6 +51,9 @@ public class unclassified extends JFrame {
 		GUI_Cover();
 	}
 
+	/**
+	 * main page
+	 */
 	public void GUI_Cover() {
 		jf.setName("Login");
 		jf.getContentPane().removeAll();
@@ -103,6 +106,9 @@ public class unclassified extends JFrame {
 		});
 	}
 
+	/**
+	 * login
+	 */
 	public void GUI_Login() {
 		jf.setName("Welcome to Login");
 		jf.setSize(800, 600);
@@ -164,6 +170,9 @@ public class unclassified extends JFrame {
 		});
 	}
 
+	/**
+	 * register
+	 */
 	public void GUI_Register() {
 		// 标题
 		jf.setName("Welcome to Register");
@@ -230,6 +239,9 @@ public class unclassified extends JFrame {
 		});
 	}
 
+	/**
+	 * page while successfully login
+	 */
 	public void GUI_Mine() {
 		jf.setName("Mine");
 		jf.getContentPane().removeAll();
@@ -314,6 +326,9 @@ public class unclassified extends JFrame {
 		});
 	}
 
+	/**
+	 * provide question
+	 */
 	public void GUI_Question() {
 		jf.setName("Question");
 		jf.getContentPane().removeAll();
@@ -406,6 +421,9 @@ public class unclassified extends JFrame {
 		});
 	}
 
+	/**
+	 * show rules
+	 */
 	public void GUI_Rule() {
 		jf.setName("Rule");
 		jf.getContentPane().removeAll();
@@ -452,6 +470,9 @@ public class unclassified extends JFrame {
 		});
 	}
 
+	/**
+	 * History record
+	 */
 	public void GUI_History() {
 		jf.setName("History");
 		jf.getContentPane().removeAll();
@@ -543,6 +564,9 @@ public class unclassified extends JFrame {
 
 	}
 
+	/**
+	 * end
+	 */
 	public void GUI_Ending() {
 		jf.setName("Answer Result");
 		jf.getContentPane().removeAll();

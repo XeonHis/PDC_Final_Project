@@ -1,106 +1,140 @@
 package Communication;
 
-//import GUI.Client;
-import Question.Question;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
-import java.util.Date;
+import Other.JDBCUtil;
+import Question.Question;
+import org.junit.Test;
+
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.Period;
+import java.util.HashMap;
+import java.util.Map;
+
 
 /**
  * @author paulalan
  * @create 2019/11/13 20:32
  */
-public class Communication implements Runnable
+public class Communication
 {
-//	private Client client = Client.getInstance();
-	private String hostname;
-	private int port;
-	private Socket s;
-	private ObjectOutputStream oos;
+	private GUI.welcomePage welcomePage = GUI.welcomePage.getInstance();
 	Question questionDetail;
+	private static Connection conn;
+	private static PreparedStatement ps;
+	private static ResultSet rs;
 
-	public Communication(String hostname, int port)
+	private static int id = -1;
+	private static int randomID;
+	private static String question = "";
+	private static String answer = "";
+	private static int type = -1;
+	private static int answerNum = -1;
+	private static Map<Integer, String> namRelateAnswer = new HashMap<>()
+	{{
+		put(0, "A");
+		put(1, "B");
+		put(2, "C");
+		put(3, "D");
+		put(4, "E");
+		put(5, "F");
+		put(6, "G");
+	}};
+
+	public Communication()
 	{
-		this.hostname = hostname;
-		this.port = port;
-//		client.setCommunication(this);
+		welcomePage.setCommunication(this);
 	}
 
-	@Override
-	public void run()
+
+	public void generateQuestion() throws SQLException
 	{
-
-		try
+		randomID = createRandomID();
+		conn = JDBCUtil.getConn();
+		String detail = "select * from myTest where id=?";
+		ps = conn.prepareStatement(detail);
+		ps.setString(1, String.valueOf(randomID));
+		rs = ps.executeQuery();
+		while (rs.next())
 		{
-			s = new Socket(hostname, port);
-			System.out.println("Socket creates successfully!");
-			oos = new ObjectOutputStream(s.getOutputStream());
-			System.out.println("oos creates successfully!");
-//			ois = new ObjectInputStream(s.getInputStream());
+			id = rs.getInt("id");
+			question = rs.getString("question");
+			answer = rs.getString("answer");
+			type = rs.getInt("type");
+			answerNum = rs.getInt("answerNum");
+		}
+		JDBCUtil.release(conn, ps, rs);
+		System.out.println("id = " + id + "\nquestion = " + question + "\nanswer = " + answer +
+				"\ntype = " + type + "\nanswerNum = " + answerNum);
+		questionDetail.setItems(id, question, answer, type, answerNum);
+	}
 
+	public boolean login(String userName, String password) throws SQLException
+	{
+		conn = JDBCUtil.getConn();
+		String sql = "select * from user_detail where user_name=? and password=?";
+		ps = conn.prepareStatement(sql);
+		ps.setString(1, userName);
+		ps.setString(2, password);
+		rs = ps.executeQuery();
+		boolean flag = rs.next();
+		JDBCUtil.release(conn, ps, rs);
+		return flag;
+	}
 
-			connect();
-
-			while (s.isConnected())
+	public boolean register(String userName, String password) throws SQLException
+	{
+		if (!checkUserExist(userName))
+		{
+			conn = JDBCUtil.getConn();
+			String sql = "insert user_detail(user_name,password) values (?,?)";
+			ps = conn.prepareStatement(sql);
+			ps.setString(1, userName);
+			ps.setString(2, password);
+			int result = ps.executeUpdate();
+			if (result > 0)
 			{
-				ObjectInputStream ois = new ObjectInputStream(s.getInputStream());
-				Question acquiredQuestionDetail = (Question) ois.readObject();
-				System.out.println(acquiredQuestionDetail);
-
-				System.out.println("id = " + acquiredQuestionDetail.getId() + "\nquestion = " + acquiredQuestionDetail.getQuestion() +
-						"\nanswer = " + acquiredQuestionDetail.getAnswer() + "\ntype = " + acquiredQuestionDetail.getType() +
-						"\nanswerNum = " + acquiredQuestionDetail.getAnswerNum());
-//				client.setAcquiredQuestion(acquiredQuestionDetail);
+				System.out.println("Register successfully");
+				JDBCUtil.release(conn, ps);
+				return true;
+			} else
+			{
+				JDBCUtil.release(conn, ps);
+				return false;
 			}
-		} catch (IOException | ClassNotFoundException e)
+		} else
 		{
-			e.printStackTrace();
-		}
-
-	}
-
-	public void connect()
-	{
-		System.out.println("Start connect activity.");
-		//create question class
-		acquireQuestion();
-		//send
-//		send(questionDetail);
-	}
-
-	public void send(Question question)
-	{
-		try
-		{
-			System.out.println("Message sends successfully." + new Date());
-			oos.writeObject(question);
-		} catch (IOException e)
-		{
-			e.printStackTrace();
+			return false;
 		}
 	}
 
-	public Question getQuestion()
+
+	public int createRandomID()
 	{
-		return questionDetail;
+		return (int) (Math.random() * 200);
 	}
 
-	public void acquireQuestion()
+
+	private boolean checkUserExist(String userName) throws SQLException
 	{
-		//create question class
-		questionDetail = new Question();
-		questionDetail.setFlag("acquire");
-		//send
-		send(questionDetail);
+		conn = JDBCUtil.getConn();
+		String sql = "select * from user_detail where user_name=?";
+		ps = conn.prepareStatement(sql);
+		ps.setString(1, userName);
+		rs = ps.executeQuery();
+		boolean flag = rs.next();
+		JDBCUtil.release(conn, ps, rs);
+		return flag;
 	}
 
-	public void checkAnswer()
+	@Test
+	public void test() throws SQLException
 	{
-		questionDetail = new Question();
-		questionDetail.setFlag("check");
-		send(questionDetail);
+		boolean flag = login("test1", "123456");
+		System.out.println(flag);
 	}
+
 }
