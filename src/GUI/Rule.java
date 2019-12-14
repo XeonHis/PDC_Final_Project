@@ -3,6 +3,7 @@ package GUI;
 import javax.swing.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.SQLException;
 
 /**
  * @author paulalan
@@ -11,7 +12,7 @@ import java.awt.event.MouseEvent;
 public class Rule extends JPanel
 {
 	private welcomePage main = welcomePage.getInstance();
-	public Rule()
+	public Rule(String currentUserName)
 	{
 		setLayout(null);
 		JLabel watermark = new JLabel("©Happy Dictionary", JLabel.CENTER);
@@ -50,12 +51,18 @@ public class Rule extends JPanel
 			public void mouseClicked(MouseEvent e)
 			{
 				// 历史记录
-				main.setTitle("IT Dictionary!");
-				main.getContentPane().removeAll();
-				mainEnter mainEnter=new mainEnter();
-				main.setContentPane(mainEnter);
-				mainEnter.setVisible(false);
-				mainEnter.setVisible(true);
+				try
+				{
+					main.setTitle("IT Dictionary!");
+					main.getContentPane().removeAll();
+					mainEnter mainEnter=new mainEnter(currentUserName);
+					main.setContentPane(mainEnter);
+					mainEnter.setVisible(false);
+					mainEnter.setVisible(true);
+				} catch (SQLException ex)
+				{
+					ex.printStackTrace();
+				}
 			}
 		});
 	}

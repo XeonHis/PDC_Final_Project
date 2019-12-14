@@ -84,7 +84,7 @@ public class Register extends JPanel
 						{
 							main.setTitle("IT Dictionary!");
 							main.getContentPane().removeAll();
-							mainEnter mainEnter = new mainEnter();
+							mainEnter mainEnter = new mainEnter(usernameInput.getText());
 							main.setContentPane(mainEnter);
 							mainEnter.setVisible(false);
 							mainEnter.setVisible(true);

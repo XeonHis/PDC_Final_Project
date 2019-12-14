@@ -1,9 +1,17 @@
 package GUI;
 
+import Question.Question;
+
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Map;
 
 /**
  * @author paulalan
@@ -12,28 +20,31 @@ import java.awt.event.MouseEvent;
 public class startQuestion extends JPanel
 {
 	private welcomePage main = welcomePage.getInstance();
-	private static int round = 0;
+	private static int count = 0;
+	private static int correctCount = 0;
 
-	public startQuestion()
+	public startQuestion(String currentUserName) throws SQLException
 	{
-		JLabel watermark = new JLabel("©Happy Dictionary", JLabel.CENTER);
-
 		setLayout(null);
 
 		Font f3 = new Font("宋体", Font.BOLD, 20);// 底部水印格式
+		Question currentQuestion = main.getCommunication().generateQuestion();
 
-		// 单选
-		JLabel Single = new JLabel("Single Choice:");
-		Single.setBounds(0, 25, 800, 25);
-		Single.setFont(f3);
+		JLabel questionType = new JLabel();
+		questionType.setBounds(0, 25, 800, 25);
 
-		// 多选
-		JLabel Multiple = new JLabel("Multiple Choice:");
-		Multiple.setBounds(0, 25, 800, 25);
-		Single.setFont(f3);
+		JLabel watermark = new JLabel("©Happy Dictionary", JLabel.CENTER);
 
-		// 根据数据库随机产生的题目判断是哪种类型的题
-		JLabel QuestionType = new JLabel();
+
+		if (currentQuestion.getType() == 1)
+		{
+			questionType.setText("Multiple Choice:");
+		} else
+		{
+			questionType.setText("Single Choice:");
+		}
+
+
 		// 问题显示
 		JTextArea QuestionDisplay = new JTextArea();
 		QuestionDisplay.setEditable(false);
@@ -43,44 +54,42 @@ public class startQuestion extends JPanel
 		QuestionDisplay.setBounds(50, 75, 700, 250);
 
 		// 数据库提供题目和答案
-		QuestionDisplay.setText("11111");
-		//answer = ？
+		QuestionDisplay.setText(currentQuestion.getQuestion());
+		String currentQuestionAnswer = currentQuestion.getAnswer();
+		HashSet<String> customAnswer = new HashSet<>();
 
-		// 单选按钮（数量根据数据库决定）
-		JButton OptionA = new JButton("A");
-		OptionA.setBounds(100, 360, 100, 60);
-		JButton OptionB = new JButton("B");
-		OptionB.setBounds(267, 360, 100, 60);
-		JButton OptionC = new JButton("C");
-		OptionC.setBounds(434, 360, 100, 60);
-		JButton OptionD = new JButton("D");
-		OptionD.setBounds(600, 360, 100, 60);
-
+		int answerNum = currentQuestion.getAnswerNum();
 		// 多选按钮
-		JPanel box = new JPanel();
-		JCheckBox box_A = new JCheckBox("A");
-//		box_A.setFont(f1);
-		JCheckBox box_B = new JCheckBox("B");
-//		box_B.setFont(f1);
-		JCheckBox box_C = new JCheckBox("C");
-//		box_C.setFont(f1);
-		JCheckBox box_D = new JCheckBox("D");
-//		box_D.setFont(f1);
-		box.add(box_A);
-		box.add(box_B);
-		box.add(box_C);
-		box.add(box_D);
-		box.setBounds(100, 360, 600, 60);
+		JPanel multipleBox = new JPanel();
+		for (int i = 0; i < answerNum; i++)
+		{
+			JCheckBox temp = new JCheckBox(String.valueOf((char) (i + 65)));
+			temp.addChangeListener(new ChangeListener()
+			{
+				@Override
+				public void stateChanged(ChangeEvent changeEvent)
+				{
+					if (temp.isSelected())
+					{
+						customAnswer.add(temp.getText());
+						System.out.println(customAnswer);
+					} else
+					{
+						customAnswer.remove(temp.getText());
+					}
+				}
+			});
+			multipleBox.add(temp);
+		}
+		multipleBox.setBounds(100, 360, 600, 60);
 
 		// 提交按钮
 		JButton Submit = new JButton("Submit");
 		Submit.setBounds(350, 450, 100, 60);
 
-		add(QuestionType);
+		add(questionType);
 		add(QuestionDisplay);
-
-
-		add(box);
+		add(multipleBox);
 		add(Submit);
 		add(watermark);
 
@@ -90,25 +99,49 @@ public class startQuestion extends JPanel
 			@Override
 			public void mouseClicked(MouseEvent e)
 			{
-				round = round + 1;
+				System.out.println("submit answer: " + customAnswer);
+				if (customAnswer.contains(currentQuestionAnswer))
+				{
+					System.out.println("Right");
+					correctCount++;
+				} else
+				{
+					System.out.println("false");
+				}
+				count = count + 1;
 				// 如果题数没够
-				if (round < 10)
+				if (count < 10)
 				{
 //					GUI_Question();
 					main.setTitle("IT Dictionary!");
 					main.getContentPane().removeAll();
-					startQuestion startQuestion = new startQuestion();
-					main.setContentPane(startQuestion);
-					startQuestion.setVisible(false);
-					startQuestion.setVisible(true);
+					startQuestion startQuestion = null;
+					try
+					{
+						startQuestion = new startQuestion(currentUserName);
+						main.setContentPane(startQuestion);
+						startQuestion.setVisible(false);
+						startQuestion.setVisible(true);
+					} catch (SQLException ex)
+					{
+						ex.printStackTrace();
+					}
+
 				} else
 				{
-					main.setTitle("Answer Result");
-					main.getContentPane().removeAll();
-					End end = new End();
-					main.setContentPane(end);
-					end.setVisible(false);
-					end.setVisible(true);
+					try
+					{
+						main.getCommunication().updateAnswerDetail(currentUserName, correctCount);
+						main.setTitle("Answer Result");
+						main.getContentPane().removeAll();
+						End end = new End(currentUserName);
+						main.setContentPane(end);
+						end.setVisible(false);
+						end.setVisible(true);
+					} catch (SQLException ex)
+					{
+						ex.printStackTrace();
+					}
 				}
 			}
 		});

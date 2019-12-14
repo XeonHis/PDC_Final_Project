@@ -12,6 +12,8 @@ import java.sql.SQLException;
 public class Login extends JPanel
 {
 	private welcomePage main = welcomePage.getInstance();
+	public static int currentID;
+	public static String currentAccount;
 
 	public Login()
 	{
@@ -64,7 +66,6 @@ public class Login extends JPanel
 			public void mouseClicked(MouseEvent e)
 			{
 				// 数据库验证账号密码是否符合
-
 				try
 				{
 					boolean loginFlag = main.getCommunication().login(
@@ -73,7 +74,7 @@ public class Login extends JPanel
 					{
 						main.setTitle("IT Dictionary!");
 						main.getContentPane().removeAll();
-						mainEnter mainEnter = new mainEnter();
+						mainEnter mainEnter = new mainEnter(usernameInput.getText());
 						main.setContentPane(mainEnter);
 						mainEnter.setVisible(false);
 						mainEnter.setVisible(true);

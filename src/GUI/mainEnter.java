@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.SQLException;
 
 /**
  * @author paulalan
@@ -13,20 +14,22 @@ public class mainEnter extends JPanel
 {
 	private welcomePage main = welcomePage.getInstance();
 
-	public mainEnter()
+
+	public mainEnter(String currentUserName) throws SQLException
 	{
+		int id = main.getCommunication().getAccountDetail(currentUserName);
 		setLayout(null);
 		JLabel watermark = new JLabel("©Happy Dictionary", JLabel.CENTER);
 		JLabel AccountContent = new JLabel();
 
 
 		// 账号
-		JLabel Account = new JLabel("Account:", JLabel.RIGHT);
+		JLabel Account = new JLabel("Account: " + id, JLabel.RIGHT);
 		Account.setBounds(0, 0, 200, 100);
 //		Account.setFont(f4);
 
 		// 用户名
-		JLabel Username = new JLabel("UserName:", JLabel.RIGHT);
+		JLabel Username = new JLabel("UserName: " + currentUserName, JLabel.RIGHT);
 		Username.setBounds(400, 0, 200, 100);
 //		Username.setFont(f4);
 		// 用户名设置
@@ -69,7 +72,7 @@ public class mainEnter extends JPanel
 				// 规则界面
 				main.setTitle("IT Dictionary!");
 				main.getContentPane().removeAll();
-				Rule rule=new Rule();
+				Rule rule = new Rule(currentUserName);
 				main.setContentPane(rule);
 				rule.setVisible(true);
 			}
@@ -94,7 +97,7 @@ public class mainEnter extends JPanel
 //				GUI_History();
 				main.setTitle("IT Dictionary!");
 				main.getContentPane().removeAll();
-				GUI.History historyPanel=new History();
+				GUI.History historyPanel = new History(currentUserName);
 				main.setContentPane(historyPanel);
 				historyPanel.setVisible(false);
 				historyPanel.setVisible(true);
@@ -109,10 +112,18 @@ public class mainEnter extends JPanel
 //				GUI_Question();
 				main.setTitle("Question");
 				main.getContentPane().removeAll();
-				startQuestion startQuestion=new startQuestion();
-				main.setContentPane(startQuestion);
-				startQuestion.setVisible(false);
-				startQuestion.setVisible(true);
+				startQuestion startQuestion = null;
+				try
+				{
+					startQuestion = new startQuestion(currentUserName);
+					main.setContentPane(startQuestion);
+					startQuestion.setVisible(false);
+					startQuestion.setVisible(true);
+				} catch (SQLException ex)
+				{
+					ex.printStackTrace();
+				}
+
 			}
 		});
 	}

@@ -11,6 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Period;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,7 +23,6 @@ import java.util.Map;
 public class Communication
 {
 	private GUI.welcomePage welcomePage = GUI.welcomePage.getInstance();
-	Question questionDetail;
 	private static Connection conn;
 	private static PreparedStatement ps;
 	private static ResultSet rs;
@@ -50,8 +50,9 @@ public class Communication
 	}
 
 
-	public void generateQuestion() throws SQLException
+	public Question generateQuestion() throws SQLException
 	{
+		Question questionDetail = new Question();
 		randomID = createRandomID();
 		conn = JDBCUtil.getConn();
 		String detail = "select * from myTest where id=?";
@@ -70,6 +71,7 @@ public class Communication
 		System.out.println("id = " + id + "\nquestion = " + question + "\nanswer = " + answer +
 				"\ntype = " + type + "\nanswerNum = " + answerNum);
 		questionDetail.setItems(id, question, answer, type, answerNum);
+		return questionDetail;
 	}
 
 	public boolean login(String userName, String password) throws SQLException
@@ -90,10 +92,11 @@ public class Communication
 		if (!checkUserExist(userName))
 		{
 			conn = JDBCUtil.getConn();
-			String sql = "insert user_detail(user_name,password) values (?,?)";
+			String sql = "insert user_detail(user_name,password,create_time) values (?,?,?)";
 			ps = conn.prepareStatement(sql);
 			ps.setString(1, userName);
 			ps.setString(2, password);
+			ps.setDate(3, new java.sql.Date(new Date().getTime()));
 			int result = ps.executeUpdate();
 			if (result > 0)
 			{
@@ -128,6 +131,38 @@ public class Communication
 		boolean flag = rs.next();
 		JDBCUtil.release(conn, ps, rs);
 		return flag;
+	}
+
+	public int getAccountDetail(String userName) throws SQLException
+	{
+		conn = JDBCUtil.getConn();
+		String sql = "select id from user_detail where user_name=?";
+		ps = conn.prepareStatement(sql);
+		ps.setString(1, userName);
+		rs = ps.executeQuery();
+		int id = 0;
+		while (rs.next())
+		{
+			id = rs.getInt("id");
+		}
+
+		return id;
+	}
+
+	public void updateAnswerDetail(String userName, int correctCount) throws SQLException
+	{
+		conn = JDBCUtil.getConn();
+		String sql = "insert answer_detail(user_name,create_time,correct_count) values (?,?,?)";
+		ps = conn.prepareStatement(sql);
+		ps.setString(1, userName);
+		ps.setDate(2, new java.sql.Date(new Date().getTime()));
+		ps.setString(3, String.valueOf(correctCount));
+		int result = ps.executeUpdate();
+		if (result > 0)
+		{
+			System.out.println("Update successfully");
+		}
+		JDBCUtil.release(conn, ps);
 	}
 
 	@Test
