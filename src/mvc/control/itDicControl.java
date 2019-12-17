@@ -46,6 +46,12 @@ public class itDicControl implements ActionListener
 			} else if (eventString.compareTo("Return") == 0)
 			{
 				itDicModel.returnBack();
+			} else if (eventString.compareTo("Starting Game") == 0)
+			{
+				itDicModel.generateQuestion();
+			}else if (eventString.compareTo("Submit")==0)
+			{
+				itDicModel.generateQuestion();
 			}
 		} catch (SQLException e)
 		{

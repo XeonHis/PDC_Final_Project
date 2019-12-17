@@ -84,9 +84,28 @@ public class itDicModel extends Observable
 	{
 		updateInfo.ruleFlag = false;
 		updateInfo.historyFlag = false;
+		updateInfo.endFlag = false;
 		setChanged();
 		notifyObservers(updateInfo);
 		System.out.println("[Model] Rule un-show handled");
+	}
+
+	public void generateQuestion() throws SQLException
+	{
+		if (updateInfo.currentQuestionNum < 10)
+		{
+			updateInfo.startQuestionFlag = true;
+			updateInfo.currentQuestionNum++;
+			updateInfo.setCurrentQuestion(communication.generateQuestion());
+		} else
+		{
+			updateInfo.startQuestionFlag = false;
+			updateInfo.currentQuestionNum = 0;
+			updateInfo.endFlag = true;
+		}
+		setChanged();
+		notifyObservers(updateInfo);
+		System.out.println("[Model] Question generated");
 	}
 
 }

@@ -1,10 +1,12 @@
 package mvc.view;
 
+import Question.Question;
 import mvc.others.updateInfo;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.util.HashSet;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -14,6 +16,8 @@ import java.util.Observer;
  */
 public class itDicView extends JFrame implements Observer
 {
+
+	private JLabel watermark;
 	public JButton loginButton;
 	public JButton registerButton;
 	public JTextField userNameInput;
@@ -30,7 +34,13 @@ public class itDicView extends JFrame implements Observer
 
 	private JPanel historyPanel = new JPanel(null);
 
+	private int questionType = -1;
+	private int answerNum = -1;
+	private JTextArea questionDisplay = new JTextArea();
+	private JButton submitButton = new JButton("Submit");
 	private JPanel startPanel = new JPanel(null);
+
+	private JPanel endPanel = new JPanel(null);
 
 	public itDicView() throws HeadlessException
 	{
@@ -155,6 +165,114 @@ public class itDicView extends JFrame implements Observer
 		repaint();
 	}
 
+	public void startQuestion()
+	{
+		JLabel questionTypeLabel = new JLabel();
+		questionTypeLabel.setBounds(0, 25, 800, 25);
+
+		watermark = new JLabel("©Happy Dictionary", JLabel.CENTER);
+
+
+		if (questionType == 1)
+		{
+			questionTypeLabel.setText("Multiple Choice:");
+		} else
+		{
+			questionTypeLabel.setText("Single Choice:");
+		}
+
+		// 问题显示
+//		questionDisplay = new JTextArea();
+		questionDisplay.setEditable(false);
+		questionDisplay.setLineWrap(true);
+		questionDisplay.setWrapStyleWord(true);
+		questionDisplay.setBounds(50, 75, 700, 250);
+
+		// 数据库提供题目和答案
+//		questionDisplay.setText(currentQuestion.getQuestion());
+		HashSet<String> customAnswer = new HashSet<>();
+
+		// 多选按钮
+		JPanel multipleBox = new JPanel();
+		for (int i = 0; i < answerNum; i++)
+		{
+			JCheckBox temp = new JCheckBox(String.valueOf((char) (i + 65)));
+			temp.addChangeListener(changeEvent ->
+			{
+				if (temp.isSelected())
+				{
+					customAnswer.add(temp.getText());
+					System.out.println(customAnswer);
+				} else
+				{
+					customAnswer.remove(temp.getText());
+				}
+			});
+			multipleBox.add(temp);
+		}
+		multipleBox.setBounds(100, 360, 600, 60);
+
+		// 提交按钮
+		submitButton.setBounds(350, 450, 100, 60);
+
+		startPanel.add(questionTypeLabel);
+		startPanel.add(questionDisplay);
+		startPanel.add(multipleBox);
+		startPanel.add(submitButton);
+		startPanel.add(watermark);
+
+		getContentPane().removeAll();
+		startPanel.setVisible(true);
+		add(startPanel);
+		validate();
+		repaint();
+	}
+
+	public void end()
+	{
+		JLabel over = new JLabel("Game over!", JLabel.CENTER);
+		over.setBounds(0, 50, 800, 50);
+
+		JLabel Correct = new JLabel("Correct Number:", JLabel.RIGHT);
+		Correct.setBounds(0, 100, 500, 100);
+
+		JLabel CorrectNum = new JLabel("10", JLabel.LEFT);
+		CorrectNum.setBounds(500, 100, 100, 100);
+
+		JLabel Wrong = new JLabel("Wrong Number:", JLabel.RIGHT);
+		Wrong.setBounds(0, 200, 500, 100);
+
+		JLabel WrongNum = new JLabel("10", JLabel.LEFT);
+		WrongNum.setBounds(500, 200, 100, 100);
+
+		returnButton.setBounds(650, 480, 100, 60);
+
+		// bottom
+		JLabel watermark = new JLabel("©Happy Dictionary", JLabel.CENTER);
+		watermark.setBounds(0, 540, 800, 20);
+
+		endPanel.add(over);
+		endPanel.add(Correct);
+		endPanel.add(CorrectNum);
+		endPanel.add(Wrong);
+		endPanel.add(WrongNum);
+		endPanel.add(returnButton);
+		endPanel.add(watermark);
+
+		getContentPane().removeAll();
+		endPanel.setVisible(true);
+		add(endPanel);
+		validate();
+		repaint();
+	}
+
+	public void setNewQuestion(Question question)
+	{
+		questionDisplay.setText(question.getQuestion());
+		questionType = question.getType();
+		answerNum = question.getAnswerNum();
+	}
+
 	public void setController(ActionListener ctrl)
 	{
 		loginButton.addActionListener(ctrl);
@@ -163,6 +281,7 @@ public class itDicView extends JFrame implements Observer
 		historyButton.addActionListener(ctrl);
 		startButton.addActionListener(ctrl);
 		returnButton.addActionListener(ctrl);
+		submitButton.addActionListener(ctrl);
 	}
 
 	@Override
@@ -191,17 +310,30 @@ public class itDicView extends JFrame implements Observer
 				tempCurrentUser = updateInfo.getCurrentUser();
 				index(tempID, tempCurrentUser);
 				System.out.println("[View] Login successful");
-			}
-		}
-		if (updateInfo.ruleFlag)
-		{
-			rule();
-			System.out.println("[View] Rule show!");
-		} else
-		{
-			index(tempID, tempCurrentUser);
-		}
 
+				if (updateInfo.ruleFlag)
+				{
+					rule();
+					System.out.println("[View] Rule show!");
+				} else
+				{
+					index(tempID, tempCurrentUser);
+				}
+
+				if (updateInfo.startQuestionFlag)
+				{
+					setNewQuestion(updateInfo.currentQuestion);
+					startQuestion();
+					startPanel.repaint();
+					System.out.println("[View] Question generated!");
+				}
+				if (updateInfo.endFlag)
+				{
+					end();
+				}
+			}
+
+		}
 
 	}
 }
