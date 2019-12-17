@@ -14,6 +14,7 @@ public class updateInfo
 	public boolean ruleFlag = false;
 	public boolean historyFlag = false;
 	public boolean startQuestionFlag = false;
+	public int currentCorrectNum=0;
 	public int currentQuestionNum = 0;
 	public Question currentQuestion = new Question();
 	private String currentUser = null;

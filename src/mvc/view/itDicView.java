@@ -6,6 +6,7 @@ import mvc.others.updateInfo;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Observable;
 import java.util.Observer;
@@ -16,6 +17,7 @@ import java.util.Observer;
  */
 public class itDicView extends JFrame implements Observer
 {
+	private HashMap<Integer, JCheckBox> checkBoxHashMap = new HashMap<>();
 
 	private JLabel watermark;
 	public JButton loginButton;
@@ -36,8 +38,10 @@ public class itDicView extends JFrame implements Observer
 
 	private int questionType = -1;
 	private int answerNum = -1;
+	public HashSet<String> customAnswer;
 	private JTextArea questionDisplay = new JTextArea();
 	private JButton submitButton = new JButton("Submit");
+	private JPanel multipleBox=new JPanel(null);
 	private JPanel startPanel = new JPanel(null);
 
 	private JPanel endPanel = new JPanel(null);
@@ -182,33 +186,39 @@ public class itDicView extends JFrame implements Observer
 		}
 
 		// 问题显示
-//		questionDisplay = new JTextArea();
 		questionDisplay.setEditable(false);
 		questionDisplay.setLineWrap(true);
 		questionDisplay.setWrapStyleWord(true);
 		questionDisplay.setBounds(50, 75, 700, 250);
 
 		// 数据库提供题目和答案
-//		questionDisplay.setText(currentQuestion.getQuestion());
-		HashSet<String> customAnswer = new HashSet<>();
+		customAnswer = new HashSet<>();
 
 		// 多选按钮
-		JPanel multipleBox = new JPanel();
+//		multipleBox = new JPanel();
+
+		if (checkBoxHashMap.size() < answerNum)
+		{
+			for (int i = checkBoxHashMap.size(); i < answerNum; i++)
+			{
+				JCheckBox temp = new JCheckBox(String.valueOf((char) (i + 65)));
+				temp.addChangeListener(changeEvent ->
+				{
+					if (temp.isSelected())
+					{
+						customAnswer.add(temp.getText());
+						System.out.println(customAnswer);
+					} else
+					{
+						customAnswer.remove(temp.getText());
+					}
+				});
+				checkBoxHashMap.put(i, temp);
+			}
+		}
 		for (int i = 0; i < answerNum; i++)
 		{
-			JCheckBox temp = new JCheckBox(String.valueOf((char) (i + 65)));
-			temp.addChangeListener(changeEvent ->
-			{
-				if (temp.isSelected())
-				{
-					customAnswer.add(temp.getText());
-					System.out.println(customAnswer);
-				} else
-				{
-					customAnswer.remove(temp.getText());
-				}
-			});
-			multipleBox.add(temp);
+			multipleBox.add(checkBoxHashMap.get(i));
 		}
 		multipleBox.setBounds(100, 360, 600, 60);
 
@@ -271,6 +281,7 @@ public class itDicView extends JFrame implements Observer
 		questionDisplay.setText(question.getQuestion());
 		questionType = question.getType();
 		answerNum = question.getAnswerNum();
+
 	}
 
 	public void setController(ActionListener ctrl)
@@ -287,8 +298,8 @@ public class itDicView extends JFrame implements Observer
 	@Override
 	public void update(Observable observable, Object o)
 	{
-		int tempID = -1;
-		String tempCurrentUser = null;
+		int tempID;
+		String tempCurrentUser;
 		updateInfo updateInfo = (mvc.others.updateInfo) o;
 		if (!updateInfo.registerFlag)
 		{

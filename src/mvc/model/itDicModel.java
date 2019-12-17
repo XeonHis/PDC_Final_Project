@@ -87,7 +87,7 @@ public class itDicModel extends Observable
 		updateInfo.endFlag = false;
 		setChanged();
 		notifyObservers(updateInfo);
-		System.out.println("[Model] Rule un-show handled");
+		System.out.println("[Model] Return handled");
 	}
 
 	public void generateQuestion() throws SQLException
@@ -106,6 +106,25 @@ public class itDicModel extends Observable
 		setChanged();
 		notifyObservers(updateInfo);
 		System.out.println("[Model] Question generated");
+	}
+
+	public void checkAnswer(String customAnswer)
+	{
+		if (customAnswer.equals(updateInfo.currentQuestion.getAnswer()))
+		{
+			updateInfo.currentCorrectNum++;
+			System.out.println("[Model] Correct Answer");
+		}
+	}
+
+	public void updateAnswer() throws SQLException
+	{
+		String un = this.userName;
+		if (!updateInfo.startQuestionFlag && updateInfo.endFlag)
+		{
+			communication.updateAnswerDetail(un, updateInfo.currentCorrectNum);
+			System.out.println("[Model] Update Successfully");
+		}
 	}
 
 }

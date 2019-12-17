@@ -49,9 +49,14 @@ public class itDicControl implements ActionListener
 			} else if (eventString.compareTo("Starting Game") == 0)
 			{
 				itDicModel.generateQuestion();
-			}else if (eventString.compareTo("Submit")==0)
+			} else if (eventString.compareTo("Submit") == 0)
 			{
+				if (itDicView.customAnswer.iterator().hasNext())
+				{
+					itDicModel.checkAnswer(itDicView.customAnswer.iterator().next());
+				}
 				itDicModel.generateQuestion();
+				itDicModel.updateAnswer();
 			}
 		} catch (SQLException e)
 		{
