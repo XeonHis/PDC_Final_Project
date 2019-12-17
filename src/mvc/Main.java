@@ -1,6 +1,8 @@
 package mvc;
 
 
+import mvc.control.itDicControl;
+import mvc.model.itDicModel;
 import mvc.view.itDicView;
 
 /**
@@ -12,5 +14,8 @@ public class Main
 	public static void main(String[] args)
 	{
 		itDicView itDicView=new itDicView();
+		itDicModel itDicModel=new itDicModel();
+		itDicControl itDicControl=new itDicControl(itDicView,itDicModel);
+		itDicModel.addObserver(itDicView);
 	}
 }
