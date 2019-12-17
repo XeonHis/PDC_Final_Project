@@ -16,7 +16,7 @@ public class Register extends JPanel
 	private welcomePage main = welcomePage.getInstance();
 	private JTextField usernameInput;
 	private JTextField passwordInput;
-	JTextField ConfirmPasswordInput;
+	JTextField confirmPasswordInput;
 
 	public Register()
 	{
@@ -48,8 +48,8 @@ public class Register extends JPanel
 		JLabel ConfirmPassword = new JLabel("*Confirm Password:", JLabel.RIGHT);
 		ConfirmPassword.setBounds(0, 300, 400, 100);
 //		ConfirmPassword.setFont(f1);
-		ConfirmPasswordInput = new JTextField();
-		ConfirmPasswordInput.setBounds(400, 325, 300, 50);
+		confirmPasswordInput = new JTextField();
+		confirmPasswordInput.setBounds(400, 325, 300, 50);
 //		ConfirmPasswordInput.setFont(f1);
 
 		// Button
@@ -63,7 +63,7 @@ public class Register extends JPanel
 		add(Password);
 		add(passwordInput);
 		add(ConfirmPassword);
-		add(ConfirmPasswordInput);
+		add(confirmPasswordInput);
 		add(button);
 
 
@@ -73,7 +73,7 @@ public class Register extends JPanel
 			@Override
 			public void mouseClicked(MouseEvent e)
 			{
-				if (check(usernameInput, passwordInput, ConfirmPasswordInput))
+				if (check(usernameInput, passwordInput, confirmPasswordInput))
 				{
 					// 数据库保存用户名密码,并提供账号
 					try

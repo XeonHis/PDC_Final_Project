@@ -10,7 +10,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.Period;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,16 +32,7 @@ public class Communication
 	private static String answer = "";
 	private static int type = -1;
 	private static int answerNum = -1;
-	private static Map<Integer, String> namRelateAnswer = new HashMap<>()
-	{{
-		put(0, "A");
-		put(1, "B");
-		put(2, "C");
-		put(3, "D");
-		put(4, "E");
-		put(5, "F");
-		put(6, "G");
-	}};
+
 
 	public Communication()
 	{
@@ -96,7 +86,7 @@ public class Communication
 			ps = conn.prepareStatement(sql);
 			ps.setString(1, userName);
 			ps.setString(2, password);
-			ps.setDate(3, new java.sql.Date(new Date().getTime()));
+			ps.setString(3, new Date().toString());
 			int result = ps.executeUpdate();
 			if (result > 0)
 			{
@@ -155,7 +145,7 @@ public class Communication
 		String sql = "insert answer_detail(user_name,create_time,correct_count) values (?,?,?)";
 		ps = conn.prepareStatement(sql);
 		ps.setString(1, userName);
-		ps.setDate(2, new java.sql.Date(new Date().getTime()));
+		ps.setString(2, new Date().toString());
 		ps.setString(3, String.valueOf(correctCount));
 		int result = ps.executeUpdate();
 		if (result > 0)
